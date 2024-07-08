@@ -56,8 +56,8 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
     )
 
     const parseFetchedUpdates = async(node: BinaryNode, type: 'messages' | 'updates') => {
-        let child 
-        
+        let child
+
         if(type === 'messages') child = getBinaryNodeChild(node, 'messages')
         else{
             const parent = getBinaryNodeChild(node, 'message_updates')
@@ -81,16 +81,16 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
                     signalRepository,
                     config.logger
                 )
-    
+
                 await decrypt()
-    
+
                 data = {
                     server_id: messageNode.attrs.server_id,
                     views: views ? +views : undefined,
                     reactions,
                     message
                 }
-    
+
                 return data
             }else{
                 data = {
@@ -130,7 +130,7 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
                 updates: {name, settings: null}
             })
         },
-        
+
         newsletterUpdatePicture: async(jid: string, content: WAMediaUpload) => {
             const { img } = await generateProfilePicture(content)
 
@@ -208,7 +208,7 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
             const result = await newsletterWMexQuery(jid, QueryIds.ADMIN_COUNT)
 
             const buff = getBinaryNodeChild(result, 'result')?.content?.toString()
-            
+
             return JSON.parse(buff!).data[XWAPaths.ADMIN_COUNT].admin_count as number
         },
 
@@ -280,8 +280,8 @@ export const extractNewsletterMetadata = (node: BinaryNode, isCreate?: boolean) 
         descriptionTime: +metadataPath.thread_metadata.description.update_time,
         invite: metadataPath.thread_metadata.invite,
         handle: metadataPath.thread_metadata.handle,
-        picture: metadataPath.thread_metadata.picture.direct_path || null,
-        preview: metadataPath.thread_metadata.preview.direct_path || null,
+        picture: metadataPath.thread_metadata.picture?.direct_path || null,
+        preview: metadataPath.thread_metadata.preview?.direct_path || null,
         reaction_codes: metadataPath.thread_metadata?.settings?.reaction_codes?.value,
         subscribers: +metadataPath.thread_metadata.subscribers_count,
         verification: metadataPath.thread_metadata.verification,
