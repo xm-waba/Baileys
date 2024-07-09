@@ -332,12 +332,13 @@ type EncryptedStreamOptions = {
 	saveOriginalFileIfRequired?: boolean
 	logger?: Logger
 	opts?: AxiosRequestConfig
+	raw?: boolean
 }
 
 export const encryptedStream = async(
 	media: WAMediaUpload,
 	mediaType: MediaType,
-	{ logger, saveOriginalFileIfRequired, opts }: EncryptedStreamOptions = {}
+	{ logger, saveOriginalFileIfRequired, opts, raw }: EncryptedStreamOptions = {}
 ) => {
 	const { stream, type } = await getStream(media, opts)
 
@@ -389,6 +390,9 @@ export const encryptedStream = async(
 			}
 
 			onChunk(aes.update(data))
+			if (raw){
+			   encWriteStream.push(data)
+			}
 		}
 
 		onChunk(aes.final())
@@ -399,7 +403,9 @@ export const encryptedStream = async(
 		const fileSha256 = sha256Plain.digest()
 		const fileEncSha256 = sha256Enc.digest()
 
-		encWriteStream.push(mac)
+		if (!raw) {
+			encWriteStream.push(mac)
+		}
 		encWriteStream.push(null)
 
 		writeStream?.end()
@@ -441,7 +447,9 @@ export const encryptedStream = async(
 	function onChunk(buff: Buffer) {
 		sha256Enc = sha256Enc.update(buff)
 		hmac = hmac.update(buff)
-		encWriteStream.push(buff)
+		if (!raw){
+		    encWriteStream.push(buff)
+		}
 	}
 }
 
@@ -604,7 +612,7 @@ export const getWAUploadToServer = (
 	{ customUploadHosts, fetchAgent, logger, options }: SocketConfig,
 	refreshMediaConn: (force: boolean) => Promise<MediaConnInfo>,
 ): WAMediaUploadFunction => {
-	return async(stream, { mediaType, fileEncSha256B64, timeoutMs }) => {
+	return async(stream, { mediaType, fileSha256B64, timeoutMs, newsletter }) => {
 		// send a query JSON to obtain the url & auth token to upload our media
 		let uploadInfo = await refreshMediaConn(false)
 
@@ -617,13 +625,19 @@ export const getWAUploadToServer = (
 		}
 
 		const reqBody = Buffer.concat(chunks)
-		fileEncSha256B64 = encodeBase64EncodedStringForUpload(fileEncSha256B64)
+		fileSha256B64 = encodeBase64EncodedStringForUpload(fileSha256B64)
 
 		for(const { hostname, maxContentLengthBytes } of hosts) {
 			logger.debug(`uploading to "${hostname}"`)
 
 			const auth = encodeURIComponent(uploadInfo.auth) // the auth token
-			const url = `https://${hostname}${MEDIA_PATH_MAP[mediaType]}/${fileEncSha256B64}?auth=${auth}&token=${fileEncSha256B64}`
+			let urlPrefix: string | undefined
+			if (newsletter){
+				urlPrefix =  `/newsletter/newsletter-${mediaType}`
+			} else {
+				urlPrefix =  MEDIA_PATH_MAP[mediaType]
+			}
+			const url = `https://${hostname}${urlPrefix}/${fileSha256B64}?auth=${auth}&token=${fileSha256B64}`
 			let result: any
 			try {
 				if(maxContentLengthBytes && reqBody.length > maxContentLengthBytes) {
