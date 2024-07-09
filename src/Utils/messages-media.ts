@@ -463,9 +463,13 @@ export const getUrlFromDirectPath = (directPath: string) => `https://${DEF_HOST}
 export const downloadContentFromMessage = (
 	{ mediaKey, directPath, url }: DownloadableMessage,
 	type: MediaType,
-	opts: MediaDownloadOptions = { }
+	opts: MediaDownloadOptions = { },
+	decrypt: boolean = true
 ) => {
 	const downloadUrl = url || getUrlFromDirectPath(directPath!)
+	if (!decrypt){
+		return getHttpStream(downloadUrl, opts.options)
+	}
 	const keys = getMediaKeys(mediaKey, type)
 
 	return downloadEncryptedContent(downloadUrl, keys, opts)
