@@ -178,16 +178,18 @@ export const prepareWAMessageMedia = async(
 		{
 			logger,
 			saveOriginalFileIfRequired: requiresOriginalForSomeProcessing,
-			opts: options.options
+			opts: options.options,
+			raw: options.newsletter
 		}
 	)
 	 // url safe Base64 encode the SHA256 hash of the body
-	const fileEncSha256B64 = fileEncSha256.toString('base64')
+	// Use regular SHA256 if it's newsletter
+	const fileSha256B64 = options.newsletter ? fileSha256.toString('base64') : fileEncSha256.toString('base64')
 	const [{ mediaUrl, directPath }] = await Promise.all([
 		(async() => {
 			const result = await options.upload(
 				encWriteStream,
-				{ fileEncSha256B64, mediaType, timeoutMs: options.mediaUploadTimeoutMs }
+				{ fileSha256B64, mediaType, timeoutMs: options.mediaUploadTimeoutMs, newsletter: options.newsletter }
 			)
 			logger?.debug({ mediaType, cacheableKey }, 'uploaded media')
 			return result
