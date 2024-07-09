@@ -7,7 +7,21 @@ import { AnyMessageContent, MediaConnInfo, MessageReceiptType, MessageRelayOptio
 
 import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, encodeNewsletterMessage, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageIDV2, generateWAMessage, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, normalizeMessageContent, parseAndInjectE2ESessions, unixTimestampSeconds } from '../Utils'
 import { getUrlInfo } from '../Utils/link-preview'
-import { areJidsSameUser, BinaryNode, BinaryNodeAttributes, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, isJidUser, jidDecode, jidEncode, jidNormalizedUser, JidWithDevice, S_WHATSAPP_NET } from '../WABinary'
+import {
+	areJidsSameUser,
+	BinaryNode,
+	BinaryNodeAttributes,
+	getBinaryNodeChild,
+	getBinaryNodeChildren,
+	isJidGroup,
+	isJidNewsletter,
+	isJidUser,
+	jidDecode,
+	jidEncode,
+	jidNormalizedUser,
+	JidWithDevice,
+	S_WHATSAPP_NET
+} from '../WABinary'
 import { USyncQuery, USyncUser } from '../WAUSync'
 import { makeNewsletterSocket } from './newsletter'
 
@@ -756,6 +770,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						mediaCache: config.mediaCache,
 						options: config.options,
 						messageId: generateMessageIDV2(sock.user?.id),
+						newsletter: isJidNewsletter(jid),
 						...options,
 					}
 				)
