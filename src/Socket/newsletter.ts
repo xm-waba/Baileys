@@ -14,7 +14,8 @@ enum QueryIds {
     ADMIN_COUNT = '7130823597031706',
     CHANGE_OWNER = '7341777602580933',
     DELETE = '8316537688363079',
-    DEMOTE = '6551828931592903'
+    DEMOTE = '6551828931592903',
+    SUBSCRIBED = '6388546374527196'
 }
 
 export const makeNewsletterSocket = (config: SocketConfig) => {
@@ -204,6 +205,13 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
             return extractNewsletterMetadata(result)
         },
 
+        newsletterSubscribed: async(): Promise<NewsletterMetadata[]> => {
+            const node = await newsletterWMexQuery(undefined, QueryIds.SUBSCRIBED)
+            const result = getBinaryNodeChild(node, 'result')?.content?.toString()
+            const data = JSON.parse(result!).data[XWAPaths.SUBSCRIBED]
+            return data.map(toNewsletterMetadata)
+        },
+
         newsletterAdminCount: async(jid: string) => {
             const result = await newsletterWMexQuery(jid, QueryIds.ADMIN_COUNT)
 
@@ -269,24 +277,26 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
 export const extractNewsletterMetadata = (node: BinaryNode, isCreate?: boolean) => {
     const result = getBinaryNodeChild(node, 'result')?.content?.toString()
     const metadataPath = JSON.parse(result!).data[isCreate ? XWAPaths.CREATE : XWAPaths.NEWSLETTER]
+    return toNewsletterMetadata(metadataPath)
+}
 
-    const metadata: NewsletterMetadata = {
-        id: metadataPath.id,
-        state: metadataPath.state.type,
-        creation_time: +metadataPath.thread_metadata.creation_time,
-        name: metadataPath.thread_metadata.name.text,
-        nameTime: +metadataPath.thread_metadata.name.update_time,
-        description: metadataPath.thread_metadata.description.text,
-        descriptionTime: +metadataPath.thread_metadata.description.update_time,
-        invite: metadataPath.thread_metadata.invite,
-        handle: metadataPath.thread_metadata.handle,
-        picture: metadataPath.thread_metadata.picture?.direct_path || null,
-        preview: metadataPath.thread_metadata.preview?.direct_path || null,
-        reaction_codes: metadataPath.thread_metadata?.settings?.reaction_codes?.value,
-        subscribers: +metadataPath.thread_metadata.subscribers_count,
-        verification: metadataPath.thread_metadata.verification,
-        viewer_metadata: metadataPath.viewer_metadata
+function toNewsletterMetadata(data: any): NewsletterMetadata{
+    return {
+        id: data.id,
+        state: data.state.type,
+        creation_time: +data.thread_metadata.creation_time,
+        name: data.thread_metadata.name.text,
+        nameTime: +data.thread_metadata.name.update_time,
+        description: data.thread_metadata.description.text,
+        descriptionTime: +data.thread_metadata.description.update_time,
+        invite: data.thread_metadata.invite,
+        handle: data.thread_metadata.handle,
+        picture: data.thread_metadata.picture?.direct_path || null,
+        preview: data.thread_metadata.preview?.direct_path || null,
+        reaction_codes: data.thread_metadata?.settings?.reaction_codes?.value,
+        subscribers: +data.thread_metadata.subscribers_count,
+        verification: data.thread_metadata.verification,
+        viewer_metadata: data.viewer_metadata
     }
 
-    return metadata
 }

@@ -80,5 +80,6 @@ export enum XWAPaths{
     ADMIN_COUNT = 'xwa2_newsletter_admin',
     CREATE = 'xwa2_newsletter_create',
     NEWSLETTER = 'xwa2_newsletter',
-    METADATA_UPDATE = 'xwa2_notify_newsletter_on_metadata_update'
+    METADATA_UPDATE = 'xwa2_notify_newsletter_on_metadata_update',
+    SUBSCRIBED = 'xwa2_newsletter_subscribed'
 }
