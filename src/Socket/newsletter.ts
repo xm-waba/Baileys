@@ -178,6 +178,13 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
 			return extractNewsletterMetadata(result)
 		},
 
+		newsletterSubscribed: async(): Promise<NewsletterMetadata[]> => {
+			const node = await newsletterWMexQuery(undefined, QueryIds.SUBSCRIBED)
+			const result = getBinaryNodeChild(node, 'result')?.content?.toString()
+			const data = JSON.parse(result!).data[XWAPaths.SUBSCRIBED]
+			return data.map(toNewsletterMetadata)
+		},
+
 		newsletterAdminCount: async(jid: string) => {
 			const result = await newsletterWMexQuery(jid, QueryIds.ADMIN_COUNT)
 
@@ -264,6 +271,4 @@ function toNewsletterMetadata(data: any): NewsletterMetadata {
 		verification: data.thread_metadata.verification,
 		'viewer_metadata': data.viewer_metadata
 	}
-
-	return metadata
 }
