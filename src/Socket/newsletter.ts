@@ -210,7 +210,7 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
 			const node = await newsletterWMexQuery(undefined, QueryIds.SUBSCRIBED)
 			const result = getBinaryNodeChild(node, 'result')?.content?.toString()
 			const data = JSON.parse(result!).data[XWAPaths.SUBSCRIBED]
-			return data.map(toNewsletterMetadata)
+			return data.map(toNewsletterMetadata).filter(Boolean)
 		},
 
 		newsletterAdminCount: async(jid: string) => {
@@ -281,7 +281,15 @@ export const extractNewsletterMetadata = (node: BinaryNode, isCreate?: boolean) 
 	return toNewsletterMetadata(metadataPath)
 }
 
-function toNewsletterMetadata(data: any): NewsletterMetadata {
+function toNewsletterMetadata(data: any): NewsletterMetadata | null {
+	if(data.state.type === 'DELETED') {
+		return null
+	}
+
+	if(data.state.type === 'NON_EXISTING') {
+		return null
+	}
+
 	return {
 		id: data.id,
 		state: data.state.type,
