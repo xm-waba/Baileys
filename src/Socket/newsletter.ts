@@ -239,6 +239,10 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
 			await newsletterWMexQuery(jid, QueryIds.DELETE)
 		},
 
+		newsletterAction: async(jid: string, type: 'follow' | 'unfollow' | 'mute' | 'unmute') => {
+			await newsletterWMexQuery(jid, type.toUpperCase() as QueryIds)
+		},
+
 		/**if code wasn't passed, the reaction will be removed (if is reacted) */
 		newsletterReactMessage: async(jid: string, server_id: string, code?: string) => {
 			await query({
