@@ -275,7 +275,10 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
 			])
 
 			return await parseFetchedUpdates(result, 'updates')
-		}
+		},
+		parseFetchedUpdates: parseFetchedUpdates,
+		newsletterQuery: newsletterQuery,
+		newsletterWMexQuery: newsletterWMexQuery,
 	}
 }
 
