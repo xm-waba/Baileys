@@ -285,7 +285,7 @@ export const extractNewsletterMetadata = (node: BinaryNode, isCreate?: boolean) 
 	return toNewsletterMetadata(metadataPath)
 }
 
-function toNewsletterMetadata(data: any): NewsletterMetadata | null {
+export function toNewsletterMetadata(data: any): NewsletterMetadata | null {
 	if(data.state.type === 'DELETED') {
 		return null
 	}
