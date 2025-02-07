@@ -289,17 +289,17 @@ export const extractNewsletterMetadata = (node: BinaryNode, isCreate?: boolean) 
 }
 
 export function toNewsletterMetadata(data: any): NewsletterMetadata | null {
-	if(data.state.type === 'DELETED') {
+	if(data.state?.type === 'DELETED') {
 		return null
 	}
 
-	if(data.state.type === 'NON_EXISTING') {
+	if(data.state?.type === 'NON_EXISTING') {
 		return null
 	}
 
 	return {
 		id: data.id,
-		state: data.state.type,
+		state: data.state?.type,
 		creation_time: +data.thread_metadata.creation_time,
 		name: data.thread_metadata.name.text,
 		nameTime: +data.thread_metadata.name.update_time,
