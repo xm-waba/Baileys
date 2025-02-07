@@ -256,10 +256,11 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
 		},
 
 		newsletterFetchMessages: async(type: 'invite' | 'jid', key: string, count: number, after?: number) => {
+			const afterStr: any = after?.toString()
 			const result = await newsletterQuery(S_WHATSAPP_NET, 'get', [
 				{
 					tag: 'messages',
-					attrs: { type, ...(type === 'invite' ? { key } : { jid: key }), count: count.toString(), after: after?.toString() || '100' }
+					attrs: { type, ...(type === 'invite' ? { key } : { jid: key }), count: count.toString(), after: afterStr }
 				}
 			])
 
