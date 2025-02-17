@@ -235,8 +235,12 @@ export const prepareWAMessageMedia = async(
 				encWriteStream.destroy()
 				// remove tmp files
 				if(didSaveToTmpPath && bodyPath) {
-					await fs.unlink(bodyPath)
-					logger?.debug('removed tmp files')
+					// wait N seconds to give a chance processing finish it's job in case of errors
+					setTimeout(
+					async () => {
+						await fs.unlink(bodyPath)
+						logger?.debug('removed tmp files')
+					}, 5000)
 				}
 			}
 		)
