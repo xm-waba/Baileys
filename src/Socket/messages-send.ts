@@ -766,7 +766,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 									...axiosOptions || { }
 								},
 								logger,
-								uploadImage: generateHighQualityLinkPreview
+								uploadImage: (generateHighQualityLinkPreview || options.linkPreviewHighQuality)
 									? waUploadToServer
 									: undefined
 							},
