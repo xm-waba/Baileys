@@ -46,7 +46,7 @@ export default (config: BaileysInMemoryStoreConfig) => {
 	const messages: { [_: string]: ReturnType<typeof makeMessagesDictionary> } = {}
 	const contacts: { [_: string]: Contact } = {}
 	const groupMetadata: { [_: string]: GroupMetadata } = {}
-	const presences: { [id: string]: { [participant: string]: PresenceData } } = {}
+	let presences: { [id: string]: { [participant: string]: PresenceData } } = {}
 	const state: ConnectionState = { connection: 'close' }
 	const labels = new ObjectRepository<Label>()
 	const labelAssociations = new KeyedDB(labelAssociationKey, labelAssociationKey.key) as KeyedDB<LabelAssociation, string>
@@ -355,6 +355,9 @@ export default (config: BaileysInMemoryStoreConfig) => {
 		groupMetadata,
 		state,
 		presences,
+		setPresences: (obj: any) => {
+			presences = obj
+		},
 		labels,
 		labelAssociations,
 		bind,
